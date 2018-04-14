@@ -36,7 +36,7 @@ class REST {
     }()
     private static let session = URLSession(configuration: configuration)
     
-    class func applyOperation<T: Codable>(url: String, body: T?, operation: RESTOperation, onComplete: @escaping(Data) -> Void, onError: @escaping(CarError) -> Void) {
+    class func applyOperation<T: Codable>(url: String, body: T?, operation: RESTOperation, onComplete: @escaping([T]) -> Void, onError: @escaping(CarError) -> Void) {
         
         var httpMethod = ""
         switch operation {
@@ -69,10 +69,16 @@ class REST {
                 }
                 if response.statusCode == 200 {
                     guard let data = data else {
-                        onError(.noData)
                         return
                     }
-                    onComplete(data)
+                    if httpMethod == "GET" {
+                        let items = try! JSONDecoder().decode([T].self, from: data)
+                        onComplete(items)
+                    } else {
+                        let item = try! JSONDecoder().decode(T.self, from: data)
+                        onComplete([item])
+                    }
+                    
                 }
                 else {
                     onError(.responseStatusCode(code: response.statusCode))

@@ -27,14 +27,8 @@ class CarManager: REST {
     }
     
     class func getCars(onComplete: @escaping([Car]) -> Void, onError: @escaping(CarError) -> Void) {
-        applyOperation(url: basePath, body: nil, operation: RESTOperation.get, onComplete: { (jsonData) in
-            do {
-                let cars = try JSONDecoder().decode([Car].self, from: jsonData)
-                onComplete(cars)
-            }
-            catch {
-                onError(.invalidJSON)
-            }
+        applyOperation(url: basePath, body: nil, operation: .get, onComplete: { (cars: [Car]) in
+            onComplete(cars)
         }, onError: onError)
     }
 }
